@@ -33,3 +33,7 @@ fetch('shit-krol-says.fragments.json')
 
 generateButton.addEventListener('click', generate);
 copyButton.addEventListener('click', copyQuote);
+
+  document.querySelectorAll('.random-number').forEach(el => {
+    el.textContent = Math.floor(Math.random() * 201);
+  });
