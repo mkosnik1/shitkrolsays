@@ -1,15 +1,30 @@
 const quote = document.querySelector('#quote');
 const generateButton = document.querySelector('#generate');
 const copyButton = document.querySelector('#copy');
-const counter = document.querySelector('#counter');
 const randomNumbers = document.querySelectorAll('.random-number');
 let parts;
+const bags = {};
 
-const pick = entries => entries[Math.floor(Math.random() * entries.length)];
+function shuffle(entries) {
+  const copy = [...entries];
+  for (let i = copy.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
+function draw(name) {
+  if (!bags[name]?.length) bags[name] = shuffle(parts[name]);
+  return bags[name].pop();
+}
 
 function generate() {
   if (!parts) return;
-  const text = [pick(parts.opening), pick(parts.argument), pick(parts.punchline)].join(' ');
+  const segments = [draw('opening'), draw('argument')];
+  if (Math.random() < 0.45) segments.push(draw('aside'));
+  segments.push(draw('punchline'));
+  const text = segments.join(' ');
   quote.textContent = text;
   quote.classList.toggle('is-long', text.length > 260);
   quote.scrollTop = 0;
@@ -32,8 +47,6 @@ fetch('shit-krol-says.fragments.json')
   })
   .then(data => {
     parts = data.parts;
-    const total = parts.opening.length * parts.argument.length * parts.punchline.length;
-    counter.textContent = `${total.toLocaleString('pl-PL')} możliwych królewskich wypowiedzi`;
     generate();
   })
   .catch(() => { quote.textContent = 'Król chwilowo stracił argumenty. Odśwież stronę.'; });
